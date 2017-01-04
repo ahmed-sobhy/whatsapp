@@ -1,0 +1,31 @@
+<html>
+<head>
+	<title>Whatsapp Stats</title>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script> 
+  <script type="text/javascript" src="static/main.js"></script>
+  
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.0/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.0/js/materialize.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/styles/main.css">	
+
+  <script>
+    all_js({{ python_data|tojson|safe }});
+  </script>
+</head>
+
+<body>
+  <nav class="green" id="nav_bar">
+      <div class="nav-wrapper">
+        <a class="center brand-logo">Whatsapp Stats</a>
+      </div>
+  </nav>
+  <div class="container">
+  <div class="row"><div class="col s12 cen" style="align:center"><div id="messagesCount"></div></div></div>
+  <div class="row"><div class="col s12 cen" style="align:center"><div id="conversationInit"></div></div></div>
+  <div class="row"><div class="col s12 cen" style="align:center"><div id="over_day"></div></div></div>
+  <div class="row"><div class="col s12 cen" style="align:center"><div id="over_time"></div></div></div>
+  <div class="row"><div class="col s12 cen" style="align:center"><div id="common_words"></div></div></div>
+  </div>
+</body>
+</html>
