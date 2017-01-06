@@ -10,6 +10,9 @@ from operator import itemgetter
 import sqlite3 as lite
 import cPickle
 import uuid
+from os import path
+
+ROOT = path.dirname(path.realpath(__file__))
 # encoding=utf8
 app = Flask(__name__)
 
@@ -26,7 +29,7 @@ class User(object):
 		self.name = name
 		self.messagesCount = 0
 		self.convInitCount = 0
-		
+
 
 class Chat(object):
 	"""docstring for Chat"""
@@ -72,7 +75,7 @@ class Chat(object):
 					name = self.getName(line)
 					self.users[name].convInitCount += 1
 			oldHour = newHour
-		
+
 
 	def mostFrequentWords(self):
 		messages = []
@@ -91,7 +94,7 @@ class Chat(object):
 		words = re.findall(r'\w\w\w+', text)
 		cap_words = [word.lower() for word in words]
 		self.word_counts = Counter(cap_words).most_common(20)
-		
+
 
 	def getName(self,line):
 		match = re.search(r'(AM|PM): (.*?):',line)
@@ -99,7 +102,7 @@ class Chat(object):
 			if match.group(2):
 				return match.group(2)
 			else:
-				return None 
+				return None
 
 	def getMessage(self,line):
 		match = re.search(r'(AM|PM):.*?: (.*)',line)
@@ -120,14 +123,14 @@ class Chat(object):
 		return hour
 
 
-	def messageClassifier(self, line):		
+	def messageClassifier(self, line):
 		match1 = re.search(r'changed the subject', line)
 		match2 = re.search(r'created this group', line)
 		match3 = re.search(r'added', line)
 
 		if match1:
 			return CHANGEDSUBJECT
-	
+
 		elif match2:
 			return CREATEDGROUP
 
@@ -136,7 +139,7 @@ class Chat(object):
 
 		elif self.getName(line) != None:
 			return FIRSTLINE
-		
+
 		else:
 			return SECONDLINE
 
@@ -146,7 +149,7 @@ class Chat(object):
 
 		convInitCount = []
 		namesConvInitCount = []
-	
+
 		date_month = []
 		date_years = []
 		messages_per_date = []
@@ -155,16 +158,16 @@ class Chat(object):
 		commonWordsCount = []
 
 		for name in sorted(self.users, key = lambda name: self.users[name].messagesCount, reverse = True):
-			messagesCount.append(self.users[name].messagesCount) 
+			messagesCount.append(self.users[name].messagesCount)
 			namesMessagesCount.append(name)
 
 		for name in sorted(self.users, key = lambda name: self.users[name].convInitCount, reverse = True):
-			convInitCount.append(self.users[name].convInitCount) 
+			convInitCount.append(self.users[name].convInitCount)
 			namesConvInitCount.append(name)
 
 		for word in self.word_counts:
 			commonWords.append(word[0])
-			commonWordsCount.append(word[1])			
+			commonWordsCount.append(word[1])
 
 		pd={
 		'namesMessagesCount': namesMessagesCount,
@@ -185,31 +188,35 @@ class Chat(object):
 
 @app.route('/')
 def hello_world():
-	return render_template('home.html')
+    global db
+    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
+    db.execute('''CREATE TABLE IF NOT EXISTS USERS (idtext text,data Blob)''')
+    return render_template('home.html')
 
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
 	if request.method == 'POST':
-		fileData = request.files['file']
-		text = fileData.readlines()
-		chat = Chat(text)
-		python_data = chat.getPythonData()
-		pdata = cPickle.dumps(python_data, cPickle.HIGHEST_PROTOCOL)
-		idtext = str(uuid.uuid1()) 
-		cursor = db.cursor()
-		cursor.execute('''INSERT into USERS (idtext, data) VALUES(?,?)''', (idtext,lite.Binary(pdata)))
-		db.commit()
-		url = "http://127.0.0.1:5000/report?id=" + idtext
-		print url
+	    global db
+	    fileData = request.files['file']
+	    text = fileData.readlines()
+	    chat = Chat(text)
+	    python_data = chat.getPythonData()
+	    pdata = cPickle.dumps(python_data, cPickle.HIGHEST_PROTOCOL)
+	    idtext = str(uuid.uuid1())
+	    cursor = db.cursor()
+	    cursor.execute('''INSERT into USERS (idtext, data) VALUES(?,?)''', (idtext,lite.Binary(pdata)))
+	    db.commit()
+	    url = "http://ahmedsobhy.pythonanywhere.com/report?id=" + idtext
 	return redirect(url)
-	
+
 
 @app.route('/report')
 def data():
+    global db
     # here we want to get the value of user (i.e. ?user=some-value)
     idx = request.args.get('id')
-    cur = db.cursor()    
+    cur = db.cursor()
     cur.execute("SELECT * FROM USERS WHERE idtext = ?", (idx,))
     rows = cur.fetchall()
     for row in rows:
@@ -217,6 +224,6 @@ def data():
     return render_template('stats.html',python_data=data)
 
 if __name__ == '__main__':
-	db = lite.connect("whatsapp.db", check_same_thread=False)
-	db.execute('''CREATE TABLE IF NOT EXISTS USERS (idtext text,data Blob)''')
-	app.run(debug=True)
+    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
+    db.execute('''CREATE TABLE IF NOT EXISTS USERS (idtext text,data Blob)''')
+    app.run(debug=True)
