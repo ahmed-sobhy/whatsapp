@@ -3,6 +3,7 @@ import datetime
 from collections import Counter
 from operator import itemgetter
 from os import path
+from datetime import date
 
 
 FIRSTLINE = 0
@@ -26,6 +27,7 @@ class Chat(object):
 		self.users = {}
 		self.hourlyActivity = [0] * 24
 
+		self.updateTimeActivity()
 		self.createUsers()
 		self.updateMessagesCount()
 		self.updateHourlyActivity()
@@ -63,6 +65,32 @@ class Chat(object):
 					name = self.getName(line)
 					self.users[name].convInitCount += 1
 			oldHour = newHour
+
+	def updateTimeActivity(self):
+		for line in self.text:
+			if self.messageClassifier(line) == FIRSTLINE:
+				self.beginMonth = self.getMonth(line)
+				self.beginYear = self.getYear(line)
+				b = date(self.beginYear, self.beginMonth ,1)
+				break
+		for line in reversed(self.text):
+			if self.messageClassifier(line) == FIRSTLINE:
+				self.endMonth = self.getMonth(line)
+				self.endYear = self.getYear(line)
+				a = date(self.endYear, self.endMonth ,1)
+				break
+		
+		monthsDiff = (a.year - b.year)*12 + a.month - b.month + 1
+		self.messagesCountPerMonth = [0] * monthsDiff
+		
+		for line in self.text:
+			if self.messageClassifier(line) == FIRSTLINE:
+				year = self.getYear(line)
+				month = self.getMonth(line)
+				a = date(year,month,1)
+				monthIndex = (a.year - b.year)*12 + a.month - b.month
+		
+				self.messagesCountPerMonth[monthIndex] += 1
 
 
 	def mostFrequentWords(self):
@@ -110,6 +138,14 @@ class Chat(object):
 			hour += 12
 		return hour
 
+	def getYear(self,line):
+		match = re.search(r'/.+?/(.+?),',line)
+		return int(match.group(1))
+		
+
+	def getMonth(self,line):
+		match = re.search(r'(.+?)/',line)
+		return int(match.group(1))
 
 	def messageClassifier(self, line):
 		match1 = re.search(r'changed the subject', line)
@@ -134,10 +170,6 @@ class Chat(object):
 		convInitCount = []
 		namesConvInitCount = []
 
-		date_month = []
-		date_years = []
-		messages_per_date = []
-
 		commonWords = []
 		commonWordsCount = []
 
@@ -160,11 +192,15 @@ class Chat(object):
 		'convInitCount': convInitCount,
 		'messagesCountPerHour': self.hourlyActivity,
 
-		'date_month' : date_month,
-		'date_years' : date_years,
-		'messages_per_date' : messages_per_date,
+		'beginMonth' : self.beginMonth,
+		'beginYear' : self.beginYear,
+		'endMonth' : self.endMonth,
+		'endYear' : self.endYear,
+		'messagesCountPerMonth' : self.messagesCountPerMonth,
 
 		'common_words' : commonWords,
 		'common_words_count' : commonWordsCount
 		}
 		return pd
+
+

@@ -5,7 +5,7 @@ all_js = function(d)
 	google.setOnLoadCallback(draw_messagesCount);
 	//google.setOnLoadCallback(draw_conversationInit);
 	google.setOnLoadCallback(draw_over_day);
-	//google.setOnLoadCallback(draw_over_time);
+	google.setOnLoadCallback(draw_over_time);
 	google.setOnLoadCallback(draw_common_words);
 
 
@@ -14,8 +14,6 @@ all_js = function(d)
 		data.addColumn('string', 'Names');
 		data.addColumn('number', 'Messages');
 		
-		
-
 		names = d.namesMessagesCount;
 		messagesCount = d.messagesCount;
 
@@ -91,12 +89,24 @@ all_js = function(d)
 		data.addColumn('date', 'Date');
 		data.addColumn('number', 'Messages');
 
-		messages_per_date = d.messages_per_date;
-		years = d.date_years
-		months = d.date_month	
-		for(var i=0;i<messages_per_date.length;i++)
+		messagesCountPerMonth = d.messagesCountPerMonth;
+		beginYear = d.beginYear
+		beginMonth = d.beginMonth	
+		prevMonth = d.beginMonth
+		year = beginYear
+		month = beginMonth
+
+		console.log(beginYear);
+
+		for(var i=0;i<messagesCountPerMonth.length;i++)
 		{
-			data.addRow([new Date(years[i]+2000,months[i]),messages_per_date[i]])
+			data.addRow([new Date(2000 + year, month), messagesCountPerMonth[i]])
+			month = (month + 1) % 13;
+			if(month == 0)
+			{
+				month = 1;
+				year++;
+			}
 		}
 		
 		// Set chart options
@@ -111,10 +121,8 @@ all_js = function(d)
 						vAxis: {title: 'Messages Number'}
 					   };
 		var chart = new google.visualization.LineChart(document.getElementById('over_time'));
-		if(years.length>=3)
-		{
-			chart.draw(data, options);
-		}
+		chart.draw(data, options);
+
 	}
 
 	function draw_common_words() {
