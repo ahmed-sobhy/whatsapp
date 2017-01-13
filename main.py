@@ -36,7 +36,7 @@ def upload():
 	    cursor = db.cursor()
 	    cursor.execute('''INSERT into USERS (idtext, data) VALUES(?,?)''', (idtext,lite.Binary(pdata)))
 	    db.commit()
-	    url = "http://wwww.whatsalytics.com/report?id=" + idtext
+	    url = "http://www.whatsalytics.com/report?id=" + idtext
 	return redirect(url)
 
 
