@@ -11,7 +11,7 @@ import uuid
 import chatprocessor
 
 ROOT = path.dirname(path.realpath(__file__))
-# encoding=utf8
+
 app = Flask(__name__)
 
 

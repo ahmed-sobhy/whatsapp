@@ -1,9 +1,11 @@
+from __future__ import division
 import re
 import datetime
 from collections import Counter
 from operator import itemgetter
 from os import path
 from datetime import date
+
 
 
 FIRSTLINE = 0
@@ -18,6 +20,10 @@ class User(object):
 		self.name = name
 		self.messagesCount = 0
 		self.convInitCount = 0
+		self.emojiCount = 0
+		self.questionCount = 0
+		self.imagesCount = 0
+
 
 
 class Chat(object):
@@ -33,6 +39,10 @@ class Chat(object):
 		self.updateHourlyActivity()
 		self.updateConvInitCount()
 		self.mostFrequentWords()
+		self.updateEmojiCount()
+		self.updateQuestionCount()
+		self.updateImagesCount()
+
 
 	def createUsers(self):
 		for line in self.text:
@@ -73,15 +83,15 @@ class Chat(object):
 				self.beginYear = self.getYear(line)
 				b = date(self.beginYear, self.beginMonth ,1)
 				break
+
 		for line in reversed(self.text):
 			if self.messageClassifier(line) == FIRSTLINE:
 				self.endMonth = self.getMonth(line)
 				self.endYear = self.getYear(line)
 				a = date(self.endYear, self.endMonth ,1)
+				monthsDiff = (a.year - b.year)*12 + a.month - b.month + 1
+				self.messagesCountPerMonth = [0] * monthsDiff
 				break
-		
-		monthsDiff = (a.year - b.year)*12 + a.month - b.month + 1
-		self.messagesCountPerMonth = [0] * monthsDiff
 		
 		for line in self.text:
 			if self.messageClassifier(line) == FIRSTLINE:
@@ -89,8 +99,8 @@ class Chat(object):
 				month = self.getMonth(line)
 				a = date(year,month,1)
 				monthIndex = (a.year - b.year)*12 + a.month - b.month
-		
 				self.messagesCountPerMonth[monthIndex] += 1
+
 
 
 	def mostFrequentWords(self):
@@ -111,6 +121,47 @@ class Chat(object):
 		cap_words = [word.lower() for word in words]
 		self.word_counts = Counter(cap_words).most_common(20)
 
+	def updateEmojiCount(self):
+		for line in self.text:
+			message = None
+			if self.messageClassifier(line) == FIRSTLINE:
+				name = self.getName(line)
+				message = self.getMessage(line)
+			elif self.messageClassifier(line) == SECONDLINE:
+				message = line
+
+			if message != None:
+				match = re.search(r'\\x',repr(message))
+				if match:
+					self.users[name].emojiCount += 1
+					
+	def updateQuestionCount(self):
+		for line in self.text:
+			message = None
+			if self.messageClassifier(line) == FIRSTLINE:
+				name = self.getName(line)
+				message = self.getMessage(line)
+			elif self.messageClassifier(line) == SECONDLINE:
+				message = line
+
+			if message != None:
+				match = re.search(r'\?', message)
+				if match:
+					self.users[name].imagesCount += 1
+
+	def updateImagesCount(self):
+		for line in self.text:
+			message = None
+			if self.messageClassifier(line) == FIRSTLINE:
+				name = self.getName(line)
+				message = self.getMessage(line)
+			elif self.messageClassifier(line) == SECONDLINE:
+				message = line
+
+			if message != None:
+				match = re.search(r'image', message)
+				if match:
+					self.users[name].imagesCount += 1
 
 	def getName(self,line):
 		match = re.search(r'(AM|PM): (.*?):',line)
@@ -142,7 +193,6 @@ class Chat(object):
 		match = re.search(r'/.+?/(.+?),',line)
 		return int(match.group(1))
 		
-
 	def getMonth(self,line):
 		match = re.search(r'(.+?)/',line)
 		return int(match.group(1))
@@ -184,6 +234,7 @@ class Chat(object):
 		for word in self.word_counts:
 			commonWords.append(word[0])
 			commonWordsCount.append(word[1])
+		
 
 		pd={
 		'namesMessagesCount': namesMessagesCount,
@@ -199,7 +250,14 @@ class Chat(object):
 		'messagesCountPerMonth' : self.messagesCountPerMonth,
 
 		'common_words' : commonWords,
-		'common_words_count' : commonWordsCount
+		'common_words_count' : commonWordsCount,
+
+
+		'mostActive' : sorted(self.users, key = lambda name: self.users[name].messagesCount, reverse = True)[0],
+		'mostEmoji' : sorted(self.users, key = lambda name: self.users[name].emojiCount, reverse = True)[0],
+		'mostPhotos' : sorted(self.users, key = lambda name: self.users[name].imagesCount, reverse = True)[0],
+		'mostAsker' : sorted(self.users, key = lambda name: self.users[name].questionCount, reverse = True)[0],
+		'mostInitiator' : sorted(self.users, key = lambda name: self.users[name].convInitCount, reverse = True)[0] 
 		}
 		return pd
 

@@ -7,6 +7,26 @@ all_js = function(d)
 	google.setOnLoadCallback(draw_over_day);
 	google.setOnLoadCallback(draw_over_time);
 	google.setOnLoadCallback(draw_common_words);
+	google.setOnLoadCallback(updateMedals);
+
+
+
+	function updateMedals()
+	{
+		appendText("mostActive", d.mostActive);
+		appendText("mostEmoji", d.mostEmoji);
+		appendText("mostPhotos", d.mostPhotos);
+		appendText("mostAsker", d.mostAsker);
+		appendText("mostInitiator", d.mostInitiator);
+	}
+
+	function appendText(id,text)
+	{
+		console.log(id);
+		var theDiv = document.getElementById(id);
+		var content = document.createTextNode(text);
+		theDiv.appendChild(content);
+	}
 
 
 	function draw_messagesCount() {
@@ -77,8 +97,8 @@ all_js = function(d)
 						'width':w,'height':h, 
 						'backgroundColor': 'transparent',
 						legend: { position: 'none' },
-						hAxis: {title: 'Hours',showTextEvery: 2},
-						vAxis: {title: 'Messages Number'}
+						hAxis: {title: 'Hours',showTextEvery: 1},
+						vAxis: {title: 'Messages Number'},
 					   };
 		var chart = new google.visualization.LineChart(document.getElementById('over_day'));
 		chart.draw(data, options);
@@ -96,11 +116,11 @@ all_js = function(d)
 		year = beginYear
 		month = beginMonth
 
-		console.log(beginYear);
+		console.log(beginMonth);
 
 		for(var i=0;i<messagesCountPerMonth.length;i++)
 		{
-			data.addRow([new Date(2000 + year, month), messagesCountPerMonth[i]])
+			data.addRow([new Date(2000 + year, month - 1), messagesCountPerMonth[i]])
 			month = (month + 1) % 13;
 			if(month == 0)
 			{

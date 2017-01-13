@@ -9,15 +9,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.0/js/materialize.min.js"></script>
   <link rel="stylesheet" type="text/css" href="/static/styles/main.css">	
 
-  <script>
-    all_js({{ python_data|tojson|safe }});
-  </script>
+  
 </head>
 
 <body>
+
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1645065235747897";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
   <nav class="green" id="nav_bar">
       <div class="nav-wrapper">
-        <a class="center brand-logo">Whatsalytics</a>
+        <a class="center brand-logo" href="/">Whatsalytics</a>
       </div>
   </nav>
   <div class="container">
@@ -26,6 +35,57 @@
   <div class="row"><div class="col s12 cen" style="align:center"><div id="over_day"></div></div></div>
   <div class="row"><div class="col s12 cen" style="align:center"><div id="over_time"></div></div></div>
   <div class="row"><div class="col s12 cen" style="align:center"><div id="common_words"></div></div></div>
+
+
+
+  <ul class="collection">
+
+    <li class="collection-item avatar">
+      <img src="/static/styles/medal.png" alt="" class="circle">
+      <span class="title"><b>The Most Active</b></span>
+      <p id="mostActive"></p>
+    </li>
+
+     <li class="collection-item avatar">
+      <img src="/static/styles/medal.png" alt="" class="circle">
+      <span class="title"><b>The Emoji Lover</b></span>
+      <p id="mostEmoji"></p>
+    </li>
+
+    <li class="collection-item avatar">
+      <img src="/static/styles/medal.png" alt="" class="circle">
+      <span class="title"><b>The Photos Lover</b></span>
+      <p id="mostPhotos"></p>
+    </li>
+
+     <li class="collection-item avatar">
+      <img src="/static/styles/medal.png" alt="" class="circle">
+      <span class="title"><b>The Asker</b></span>
+      <p id="mostAsker"></p>
+    </li>
+
+     <li class="collection-item avatar">
+      <img src="/static/styles/medal.png" alt="" class="circle">
+      <span class="title"><b>The Conversation Initiator</b></span>
+      <p id ="mostInitiator"></p>
+    </li>
+  </ul>
+
+
+
+  <br><br>
+  <div><h4>Share results with your friends: </h4></div>
+  <div class="fb-share-button" data-href="https://www.google.com.eg/?gfe_rd=cr&amp;ei=35B4WOKTDPCstgeJxbf4CQ" data-layout="button" data-size="large" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.google.com.eg%2F%3Fgfe_rd%3Dcr%26ei%3D35B4WOKTDPCstgeJxbf4CQ&amp;src=sdkpreparse">Share</a></div>
+
+  <br><br><br><br>
+
+  <div>Icons made by <a href="http://www.flaticon.com/authors/pixel-buddha" title="Pixel Buddha">Pixel Buddha</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
   </div>
+
+
+  <script>
+    all_js({{ python_data|tojson|safe }});
+  </script>
 </body>
 </html>
