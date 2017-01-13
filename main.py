@@ -26,7 +26,7 @@ def hello_world():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
 	if request.method == 'POST':
-	    global db
+	    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
 	    fileData = request.files['file']
 	    text = fileData.readlines()
 	    chat = chatprocessor.Chat(text)
@@ -42,7 +42,7 @@ def upload():
 
 @app.route('/report')
 def data():
-    global db
+    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
     # here we want to get the value of user (i.e. ?user=some-value)
     idx = request.args.get('id')
     cur = db.cursor()
