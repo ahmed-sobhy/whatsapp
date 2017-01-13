@@ -26,7 +26,7 @@ def hello_world():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
 	if request.method == 'POST':
-	    global db
+	    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
 	    fileData = request.files['file']
 	    text = fileData.readlines()
 	    chat = chatprocessor.Chat(text)
@@ -36,13 +36,13 @@ def upload():
 	    cursor = db.cursor()
 	    cursor.execute('''INSERT into USERS (idtext, data) VALUES(?,?)''', (idtext,lite.Binary(pdata)))
 	    db.commit()
-	    url = "http://127.0.0.1:5000/report?id=" + idtext
+	    url = "http://www.whatsalytics.com/report?id=" + idtext
 	return redirect(url)
 
 
 @app.route('/report')
 def data():
-    global db
+    db = lite.connect(path.join(ROOT,"whatsapp.db"), check_same_thread=False)
     # here we want to get the value of user (i.e. ?user=some-value)
     idx = request.args.get('id')
     cur = db.cursor()
