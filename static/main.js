@@ -9,6 +9,7 @@ all_js = function(d)
 	google.setOnLoadCallback(draw_common_words);
 	google.setOnLoadCallback(updateMedals);
 
+	document.getElementById("fbbutton").href= window.location.href; 
 
 
 	function updateMedals()
