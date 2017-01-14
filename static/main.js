@@ -11,7 +11,7 @@ all_js = function(d)
 
 	document.getElementById("fbbutton").href= window.location.href; 
 
-
+	
 	function updateMedals()
 	{
 		appendText("mostActive", d.mostActive);
