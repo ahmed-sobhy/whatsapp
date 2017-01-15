@@ -47,7 +47,7 @@ all_js = function(d)
 		w = document.getElementById('messagesCount').style.width;
 		w = window.innerWidth * (6/12);
 		h = w;
-		var options = {'title':'Messages Count by Members','width':w,'height':h, 'backgroundColor': 'transparent','is3D':true,legend: { position: 'none' },
+		var options = {'title':'Members Activity','width':w,'height':h, 'backgroundColor': 'transparent','is3D':true,legend: { position: 'none' },
 						hAxis: {title: 'Messages Number'}};
 		var chart = new google.visualization.BarChart(document.getElementById('messagesCount'));
 		chart.draw(data, options);
@@ -94,7 +94,7 @@ all_js = function(d)
 		w = document.getElementById('over_day').style.width;
 		w = window.innerWidth * (6/12);
 		h = w;
-		var options = {'title':'Chat Messages Count Over a Day',
+		var options = {'title':'Chat Activity over Day Interval',
 						'width':w,'height':h, 
 						'backgroundColor': 'transparent',
 						legend: { position: 'none' },
@@ -134,7 +134,7 @@ all_js = function(d)
 		w = document.getElementById('over_time').style.width;
 		w = window.innerWidth * (6/12);
 		h = w;
-		var options = {'title':'Chat Messages Count Timeline',
+		var options = {'title':'Chat Activity Over Whole Timeline',
 						'width':w,'height':h, 
 						'backgroundColor': 'transparent',
 						legend: { position: 'none' },
@@ -163,8 +163,8 @@ all_js = function(d)
 		w = document.getElementById('common_words').style.width;
 		w = window.innerWidth * (6/12);
 		h = w;
-		var options = {'title':'Most Common Words with minimum 4 letters','width':w,'height':h, 'backgroundColor': 'transparent','is3D':true,legend: { position: 'none' },
-						hAxis: {title: 'Words'},vAxis: {title: 'Count'}};
+		var options = {'title':'Most Common Words','width':w,'height':h, 'backgroundColor': 'transparent','is3D':true,legend: { position: 'none' },
+						hAxis: {title: 'Count'},vAxis: {title: 'Words'}};
 		var chart = new google.visualization.BarChart(document.getElementById('common_words'));
 		chart.draw(data, options);
 	}
