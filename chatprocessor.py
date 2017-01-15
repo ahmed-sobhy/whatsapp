@@ -33,8 +33,10 @@ class Chat(object):
 		self.users = {}
 		self.hourlyActivity = [0] * 24
 
-		self.updateTimeActivity()
+
+		self.detectOS()
 		self.createUsers()
+		self.updateTimeActivity()
 		self.updateMessagesCount()
 		self.updateHourlyActivity()
 		self.updateConvInitCount()
@@ -42,6 +44,19 @@ class Chat(object):
 		self.updateEmojiCount()
 		self.updateQuestionCount()
 		self.updateImagesCount()
+
+	def detectOS(self):
+		for line in self.text:
+			match = re.search(r'(PM|AM)',line)
+			if match:
+				match = re.search(r'(PM|AM)(.)',line)
+				if match:
+					if match.group(2) == ":":
+						self.os = "ios"
+					else:
+						self.os = "android"
+					break
+
 
 
 	def createUsers(self):
@@ -51,12 +66,14 @@ class Chat(object):
 				self.users[name] = User(name)
 
 	def updateMessagesCount(self):
+		name = None
 		for line in self.text:
 			if self.messageClassifier(line) == FIRSTLINE:
 				name = self.getName(line)
 				self.users[name].messagesCount += 1
 			elif self.messageClassifier(line) == SECONDLINE:
-				self.users[name].messagesCount += 1
+				if name != None:
+					self.users[name].messagesCount += 1
 
 	def updateHourlyActivity(self):
 		for line in self.text:
@@ -122,6 +139,7 @@ class Chat(object):
 		self.word_counts = Counter(cap_words).most_common(20)
 
 	def updateEmojiCount(self):
+		name = None
 		for line in self.text:
 			message = None
 			if self.messageClassifier(line) == FIRSTLINE:
@@ -133,7 +151,8 @@ class Chat(object):
 			if message != None:
 				match = re.search(r'\\x',repr(message))
 				if match:
-					self.users[name].emojiCount += 1
+					if name != None:
+						self.users[name].emojiCount += 1
 					
 	def updateQuestionCount(self):
 		for line in self.text:
@@ -164,38 +183,68 @@ class Chat(object):
 					self.users[name].imagesCount += 1
 
 	def getName(self,line):
-		match = re.search(r'(AM|PM): (.*?):',line)
-		if match:
-			if match.group(2):
-				return match.group(2)
+		if self.os == "ios":
+			match = re.search(r'(AM|PM): (.*?):',line)
+			if match:
+				if match.group(2):
+					return match.group(2)
+				else:
+					return None
+		else:
+			match = re.search(r'- (.+?):',line)
+			if match:
+				return match.group(1)
 			else:
 				return None
 
 	def getMessage(self,line):
-		match = re.search(r'(AM|PM):.*?: (.*)',line)
-		if match:
-			if match.group(2):
-				return match.group(2)
+		if self.os == "ios":
+			match = re.search(r'(AM|PM):.*?: (.*)',line)
+			if match:
+				if match.group(2):
+					return match.group(2)
+		else:
+			match = re.search(r':.+?:(.+)',line)
+			if match:
+				return match.group(1)
+			
 
 	def getHour(self,line):
-		match = re.search(r'(AM|PM)',line)
-		timeSplit = match.group(0)
-		match = re.search(r' (.+?):',line)
+		if self.os == "ios":
+			match = re.search(r'(AM|PM)',line)
+			timeSplit = match.group(0)
+			match = re.search(r' (.+?):',line)
+			hour = int(match.group(1))
 
-		hour = int(match.group(1))
-		if hour == 12:
-			hour = 0
-		if(timeSplit == "PM"):
-			hour += 12
-		return hour
 
-	def getYear(self,line):
+			if hour == 12:
+				hour = 0
+			if(timeSplit == "PM"):
+				hour += 12
+			return hour
+		else:
+			match = re.search(r'(AM|PM)',line)
+			timeSplit = match.group(0)
+			match = re.search(r', (.+?):',line)
+			hour = int(match.group(1))
+			print hour
+
+			if hour == 12:
+				hour = 0
+			if(timeSplit == "PM"):
+				hour += 12
+			return hour
+			return None
+
+	def getYear(self,line):	
 		match = re.search(r'/.+?/(.+?),',line)
 		return int(match.group(1))
+	
 		
 	def getMonth(self,line):
 		match = re.search(r'(.+?)/',line)
 		return int(match.group(1))
+		
 
 	def messageClassifier(self, line):
 		match1 = re.search(r'changed the subject', line)
